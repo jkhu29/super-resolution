@@ -1,0 +1,6 @@
+dataset_make/BSDS100/*
+dataset_make/BSDS200/*
+dataset_make/*.h5
+
+srresnet/model/*
+
