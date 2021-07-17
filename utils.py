@@ -3,7 +3,6 @@ import torch
 from torch import nn
 import cv2
 import numpy as np
-# from skimage.metrics import peak_signal_noise_ratio as pnsr
 from skimage.metrics import structural_similarity as ssim
 
 
@@ -20,7 +19,7 @@ def weights_init(model):
 
 
 def calc_ssim(img1, img2):
-    '''calculate SSIM'''
+    """calculate SSIM"""
     img1 = img1.cpu()
     img2 = img2.cpu()
     img1 = img1.numpy().transpose(1, 2, 0)
@@ -41,7 +40,7 @@ def calc_ssim(img1, img2):
 
 
 def calc_pnsr(img1, img2):
-    '''calculate PNSR'''
+    """calculate PNSR"""
     img1 = img1.cpu()
     img2 = img2.cpu()
     img1 = img1.numpy().transpose(1, 2, 0)
@@ -49,12 +48,12 @@ def calc_pnsr(img1, img2):
     if not img1.shape == img2.shape:
         raise ValueError('Input images must have the same dimensions.')
     if img1.ndim == 2:
-        return cv2.PNSR(img1, img2)
+        return cv2.PSNR(img1, img2)
     elif img1.ndim == 3:
         if img1.shape[2] == 3:
             return cv2.PSNR(img1 * 255., img2 * 255.)
         elif img1.shape[2] == 1:
-            return psnr(np.squeeze(img1), np.squeeze(img2))
+            return cv2.PSNR(np.squeeze(img1), np.squeeze(img2))
         else:
             raise ValueError('Wrong input image channel.')
     else:

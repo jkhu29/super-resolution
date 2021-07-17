@@ -17,7 +17,7 @@
 
 - [x] SRCNN / FSRCNN  `./srresnet`
 - [x] SRResNet / SRGAN `./srresnet`
-- [ ] EDSR
+- [x] VDSR / EDSR / MDSR `./edsr`
 - [ ] DBPN
 - [ ] RCAN 
 - [ ] USRNet

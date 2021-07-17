@@ -1,5 +1,6 @@
 import copy
 import random
+import warnings
 
 import torch
 from torch import nn
@@ -10,13 +11,13 @@ import torchvision
 
 from tqdm import tqdm
 
-from model import SRCNN, FSRCNN, BSRCNN, SRResNet, SRGAN_D, FeatureExtractor
-from config import get_options
-from dataset import *
-from utils import *
+from model import SRResNet, SRGAN_D, FeatureExtractor
+import config
+import dataset
+import utils
 
 
-opt = get_options()
+opt = config.get_options()
 
 # deveice init
 CUDA_ENABLE = torch.cuda.is_available()
@@ -37,7 +38,7 @@ manual_seed = opt.seed
 random.seed(manual_seed)
 torch.manual_seed(manual_seed)
 
-# model init
+# models init
 # models = [SRResNet().to(device)]
 model_g = SRResNet(within=False).to(device)
 model_d = SRGAN_D().to(device)
@@ -49,7 +50,7 @@ criterion_d = nn.BCELoss()
 feature_extractor = FeatureExtractor(torchvision.models.vgg19(pretrained=True)).to(device)
 
 # dataset init, train file need .h5
-train_dataset = TrainDataset(opt.train_file)
+train_dataset = dataset.TrainDataset(opt.train_file)
 train_dataloader = dataloader.DataLoader(dataset=train_dataset,
                                          batch_size=opt.batch_size, 
                                          shuffle=True, 
@@ -57,74 +58,11 @@ train_dataloader = dataloader.DataLoader(dataset=train_dataset,
                                          pin_memory=True, 
                                          drop_last=True)
 
-valid_dataset = ValidDataset(opt.valid_file)
+valid_dataset = dataset.ValidDataset(opt.valid_file)
 valid_dataloader = dataloader.DataLoader(dataset=valid_dataset, batch_size=1)
 
-# for model in models:
-#     summary(model, input_size=[(3, 25, 25)], batch_size=opt.batch_size, device='cpu')
-#     for criterion in criterions:
-#         print('\r\nLoss: %s\r\n' % str(criterion))
-
-#         model.apply(weights_init)
-
-#         # optim init
-#         if opt.adam:
-#             model_optimizer = optim.Adam(model.parameters(), lr=opt.lr, eps=1e-8, weight_decay=1e-3)
-#         else:
-#             model_optimizer = optim.RMSprop(model.parameters(), lr=opt.lr)
-#         model_scheduler = optim.lr_scheduler.CosineAnnealingLR(model_optimizer, T_max=opt.niter)
-
-#         for epoch in range(opt.niter):
-#             # train
-#             model.train()
-#             epoch_losses = AverageMeter()
-#             with tqdm(total=(len(train_dataset) - len(train_dataset) % opt.batch_size)) as t:
-#                 t.set_description('epoch: {}/{}'.format(epoch+1, opt.niter))
-
-#                 for data in train_dataloader:
-#                     inputs, labels = data
-
-#                     inputs = inputs.to(device)
-#                     labels = labels.to(device)
-
-#                     preds = model(inputs)
-
-#                     loss = criterion(preds, labels)
-
-#                     epoch_losses.update(loss.item(), len(inputs))
-
-#                     model_optimizer.zero_grad()
-#                     loss.backward()
-#                     model_optimizer.step()
-
-#                     t.set_postfix(loss='{:.6f}'.format(epoch_losses.avg))
-#                     t.update(len(inputs))
-
-#             model_scheduler.step()
-
-#             # torch.save(model.state_dict(), 'epoch_{}.pth'.format(epoch))
-#             # test
-#             model.eval()
-#             epoch_pnsr = AverageMeter()
-#             epoch_ssim = AverageMeter()
-
-#             for data in valid_dataloader:
-#                 inputs, labels = data
-
-#                 inputs = inputs.to(device)
-#                 labels = labels.to(device)
-
-#                 with torch.no_grad():
-#                     preds = model(inputs).clamp(0.0, 1.0)
-
-#                 epoch_pnsr.update(calc_pnsr(preds, labels), len(inputs))
-#                 epoch_ssim.update(calc_ssim(preds, labels), len(inputs))
-
-#             print('eval psnr: {:.2f} eval ssim: {:.2f}'.format(epoch_pnsr.avg, epoch_ssim.avg))
-
-
-model_g.apply(weights_init)
-model_d.apply(weights_init)
+model_g.apply(utils.weights_init)
+model_d.apply(utils.weights_init)
 
 # optim init
 if opt.adam:
@@ -134,20 +72,20 @@ else:
 
 model_g_scheduler = optim.lr_scheduler.CosineAnnealingLR(model_g_optimizer, T_max=opt.niter)
 
-# from torchviz import make_dot
-# sampleData = torch.rand(64, 3, 30, 30)
-# out = model_g(sampleData)
-# out_d = model_d(out)
-# d = make_dot(out_d)
-# d.render('modelviz_d', view=False)
-# print(out_d)
+if opt.save_model_pdf:
+    from torchviz import make_dot
+    sampleData = torch.rand(64, 3, 30, 30)
+    out = model_g(sampleData)
+    out_d = model_d(out)
+    d = make_dot(out_d)
+    d.render('modelviz', view=False)
 
 # pre-train srresnet first
 for epoch in range(opt.niter):
 
     model_g.train()
 
-    epoch_losses = AverageMeter()
+    epoch_losses = utils.AverageMeter()
 
     with tqdm(total=(len(train_dataset) - len(train_dataset) % opt.batch_size)) as t:
         t.set_description('epoch: {}/{}'.format(epoch+1, opt.niter))
@@ -176,8 +114,8 @@ for epoch in range(opt.niter):
     # test
     model_g.eval()
 
-    epoch_pnsr = AverageMeter()
-    epoch_ssim = AverageMeter()
+    epoch_pnsr = utils.AverageMeter()
+    epoch_ssim = utils.AverageMeter()
 
     for data in valid_dataloader:
         inputs, labels = data
@@ -187,20 +125,20 @@ for epoch in range(opt.niter):
 
         with torch.no_grad():
             preds = model_g(inputs)[0]
-            epoch_pnsr.update(calc_pnsr(preds, labels), len(inputs))
-            epoch_ssim.update(calc_ssim(preds, labels), len(inputs))
+            epoch_pnsr.update(utils.calc_pnsr(preds, labels), len(inputs))
+            epoch_ssim.update(utils.calc_ssim(preds, labels), len(inputs))
 
     print('eval psnr: {:.4f} eval ssim: {:.4f}'.format(epoch_pnsr.avg, epoch_ssim.avg))
 
-torch.save(model_g.state_dict(), "%s/model/srgan_generator_pretrain.pth" % opt.output_dir)
+torch.save(model_g.state_dict(), "%s/models/srgan_generator_pretrain.pth" % opt.output_dir)
 
 # train srgan
 if opt.adam:
-    model_g_optimizer = optim.Adam(model_g.parameters(), lr=opt.lr*0.5, eps=1e-8, weight_decay=1e-3)
-    model_d_optimizer = optim.Adam(model_d.parameters(), lr=opt.lr*0.5, eps=1e-8, weight_decay=1e-3)
+    model_g_optimizer = optim.Adam(model_g.parameters(), lr=opt.lr*0.1, eps=1e-8, weight_decay=1e-3)
+    model_d_optimizer = optim.Adam(model_d.parameters(), lr=opt.lr*0.1, eps=1e-8, weight_decay=1e-3)
 else:
-    model_g_optimizer = optim.RMSprop(model_g.parameters(), lr=opt.lr*0.5)
-    model_d_optimizer = optim.RMSprop(model_d.parameters(), lr=opt.lr*0.5)
+    model_g_optimizer = optim.RMSprop(model_g.parameters(), lr=opt.lr*0.1)
+    model_d_optimizer = optim.RMSprop(model_d.parameters(), lr=opt.lr*0.1)
 
 model_g_scheduler = optim.lr_scheduler.CosineAnnealingLR(model_g_optimizer, T_max=opt.niter)
 model_d_scheduler = optim.lr_scheduler.CosineAnnealingLR(model_d_optimizer, T_max=opt.niter)
@@ -210,8 +148,8 @@ for epoch in range(opt.niter):
     model_g.train()
     model_d.train()
 
-    epoch_losses_d = AverageMeter()
-    epoch_losses_total = AverageMeter()
+    epoch_losses_d = utils.AverageMeter()
+    epoch_losses_total = utils.AverageMeter()
 
     with tqdm(total=(len(train_dataset) - len(train_dataset) % opt.batch_size)) as t:
         t.set_description('epoch: {}/{}'.format(epoch+1, opt.niter))
@@ -265,8 +203,8 @@ for epoch in range(opt.niter):
     model_g.eval()
     model_d.eval()
 
-    epoch_pnsr = AverageMeter()
-    epoch_ssim = AverageMeter()
+    epoch_pnsr = utils.AverageMeter()
+    epoch_ssim = utils.AverageMeter()
 
     for data in valid_dataloader:
         inputs, labels = data
@@ -276,10 +214,10 @@ for epoch in range(opt.niter):
 
         with torch.no_grad():
             preds = model_g(inputs)[0]
-            epoch_pnsr.update(calc_pnsr(preds, labels), len(inputs))
-            epoch_ssim.update(calc_ssim(preds, labels), len(inputs))
+            epoch_pnsr.update(utils.calc_pnsr(preds, labels), len(inputs))
+            epoch_ssim.update(utils.calc_ssim(preds, labels), len(inputs))
 
     print('eval psnr: {:.4f} eval ssim: {:.4f}'.format(epoch_pnsr.avg, epoch_ssim.avg))
 
-torch.save(model_g.state_dict(), '%s/model/srgan_generator_final.pth' % opt.output_dir)
-torch.save(model_d.state_dict(), '%s/model/srgan_discriminator_final.pth' % opt.output_dir)
+torch.save(model_g.state_dict(), '%s/models/srgan_generator_final.pth' % opt.output_dir)
+torch.save(model_d.state_dict(), '%s/models/srgan_discriminator_final.pth' % opt.output_dir)

@@ -1,13 +1,12 @@
 import torch
 import numpy as np
 import cv2
-import matplotlib.pyplot as plt
 from model import SRResNet
 from skimage.metrics import structural_similarity as ssim
 
 
-path_pth = '/home/junru/model/srgan_generator_pretrain.pth'
-path_pth2 = '/home/junru/model/srgan_generator_final.pth'
+path_pth = '/path/to/srgan_generator_pretrain.pth'
+path_pth2 = '/path/to/srgan_generator_final.pth'
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model1 = SRResNet(within=False).to(device)
 model2 = SRResNet(within=False).to(device)

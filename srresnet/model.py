@@ -62,14 +62,14 @@ class BSRCNN(nn.Module):
 
 
 class ResidualBlock(nn.Module):
-    def __init__(self, within=True):
+    def __init__(self, channels=64, within=True):
         super(ResidualBlock, self).__init__()
 
-        self.conv1 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1, bias=False)
-        self.in1 = nn.InstanceNorm2d(64, affine=True)
+        self.conv1 = nn.Conv2d(in_channels=channels, out_channels=channels, kernel_size=3, stride=1, padding=1, bias=False)
+        self.in1 = nn.InstanceNorm2d(channels, affine=True)
         self.relu = nn.PReLU()
-        self.conv2 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1, padding=1, bias=False)
-        self.in2 = nn.InstanceNorm2d(64, affine=True)
+        self.conv2 = nn.Conv2d(in_channels=channels, out_channels=channels, kernel_size=3, stride=1, padding=1, bias=False)
+        self.in2 = nn.InstanceNorm2d(channels, affine=True)
 
         self.within = within
 

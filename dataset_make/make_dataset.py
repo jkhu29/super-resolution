@@ -1,11 +1,11 @@
-import os, sys
 import argparse
 import copy
+import os
 
-import h5py
-
-import numpy as np
 import cv2
+import h5py
+import numpy as np
+import torch
 
 
 def convert_rgb_to_y(img):
@@ -64,12 +64,12 @@ def make_h5(data_path, h5_path, size_input=25, size_label=100, stride=10, scale=
         img = cv2.resize(img, tuple(img_shape.astype(np.int)[::-1]), cv2.INTER_CUBIC)
         # print(img.shape)
 
-        for x in np.arange(0, img.shape[0]-size_input+1, stride):
-            for y in np.arange(0, img.shape[1]-size_input+1, stride):
-                img_lr = img[int(x): int(x+size_input),
-                             int(y): int(y+size_input)]
-                img_hr = img_label[int(x*scale): int(x*scale+size_label),
-                                   int(y*scale): int(y*scale+size_label)]
+        for x in np.arange(0, img.shape[0] - size_input + 1, stride):
+            for y in np.arange(0, img.shape[1] - size_input + 1, stride):
+                img_lr = img[int(x): int(x + size_input),
+                         int(y): int(y + size_input)]
+                img_hr = img_label[int(x * scale): int(x * scale + size_label),
+                         int(y * scale): int(y * scale + size_label)]
                 imgs_lr.append(img_lr.transpose(2, 0, 1))
                 imgs_hr.append(img_hr.transpose(2, 0, 1))
 
@@ -82,7 +82,6 @@ def make_h5(data_path, h5_path, size_input=25, size_label=100, stride=10, scale=
 
 
 def get_options():
-    
     parser = argparse.ArgumentParser()
     parser.add_argument('--train_path', type=str, required=True)
     parser.add_argument('--valid_path', type=str, required=True)
@@ -105,9 +104,9 @@ if __name__ == '__main__':
     train_data = opt.train_path
     valid_data = opt.valid_data
 
-    make_h5(train_data, train_path, 
-        size_input=opt.size_input, size_label=opt.size_label, stride=opt.stride, scale=opt.scale
-    )
-    make_h5(valid_data, valid_path, 
-        size_input=opt.size_input, size_label=opt.size_label, stride=opt.stride, scale=opt.scale
-        )
+    make_h5(train_data, train_path,
+            size_input=opt.size_input, size_label=opt.size_label, stride=opt.stride, scale=opt.scale
+            )
+    make_h5(valid_data, valid_path,
+            size_input=opt.size_input, size_label=opt.size_label, stride=opt.stride, scale=opt.scale
+            )
