@@ -9,10 +9,11 @@ from torch.utils.data import dataloader
 
 from tqdm import tqdm
 
-from model import EDSR, VDSR
+from model import RCAN
 import config
 import dataset
 import utils
+from loss import L1_Charbonnier_loss
 
 
 opt = config.get_options()
@@ -37,17 +38,18 @@ random.seed(manual_seed)
 torch.manual_seed(manual_seed)
 
 # models init
-model = EDSR().to(device)
+model = RCAN().to(device)
 
 # criterion init
-criterion = nn.L1Loss(reduction='sum')
+criterion = L1_Charbonnier_loss()
+
 # dataset init, train file need .h5
 train_dataset = dataset.TrainDataset(opt.train_file)
 train_dataloader = dataloader.DataLoader(dataset=train_dataset,
-                                         batch_size=opt.batch_size, 
-                                         shuffle=True, 
-                                         num_workers=opt.workers, 
-                                         pin_memory=True, 
+                                         batch_size=opt.batch_size,
+                                         shuffle=True,
+                                         num_workers=opt.workers,
+                                         pin_memory=True,
                                          drop_last=True)
 
 valid_dataset = dataset.ValidDataset(opt.valid_file)
@@ -70,7 +72,7 @@ if opt.save_model_pdf:
     d = make_dot(out)
     d.render('modelviz', view=False)
 
-# train edsr
+# train rcan
 for epoch in range(opt.niter):
 
     model.train()
@@ -120,4 +122,4 @@ for epoch in range(opt.niter):
 
     print('eval psnr: {:.4f} eval ssim: {:.4f}'.format(epoch_pnsr.avg, epoch_ssim.avg))
 
-torch.save(model.state_dict(), "%s/models/edsr.pth" % opt.output_dir)
+torch.save(model.state_dict(), "%s/models/rcan.pth" % opt.output_dir)

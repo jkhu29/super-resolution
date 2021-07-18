@@ -66,7 +66,7 @@ model_d.apply(utils.weights_init)
 
 # optim init
 if opt.adam:
-    model_g_optimizer = optim.Adam(model_g.parameters(), lr=opt.lr, eps=1e-8, weight_decay=1e-3)
+    model_g_optimizer = optim.Adam(model_g.parameters(), lr=opt.lr, eps=1e-8, weight_decay=1)
 else:
     model_g_optimizer = optim.RMSprop(model_g.parameters(), lr=opt.lr)
 
@@ -74,7 +74,7 @@ model_g_scheduler = optim.lr_scheduler.CosineAnnealingLR(model_g_optimizer, T_ma
 
 if opt.save_model_pdf:
     from torchviz import make_dot
-    sampleData = torch.rand(64, 3, 30, 30)
+    sampleData = torch.rand(1, 3, 30, 30).to(device)
     out = model_g(sampleData)
     out_d = model_d(out)
     d = make_dot(out_d)
@@ -134,8 +134,8 @@ torch.save(model_g.state_dict(), "%s/models/srgan_generator_pretrain.pth" % opt.
 
 # train srgan
 if opt.adam:
-    model_g_optimizer = optim.Adam(model_g.parameters(), lr=opt.lr*0.1, eps=1e-8, weight_decay=1e-3)
-    model_d_optimizer = optim.Adam(model_d.parameters(), lr=opt.lr*0.1, eps=1e-8, weight_decay=1e-3)
+    model_g_optimizer = optim.Adam(model_g.parameters(), lr=opt.lr*0.1, eps=1e-8, weight_decay=1)
+    model_d_optimizer = optim.Adam(model_d.parameters(), lr=opt.lr*0.1, eps=1e-8, weight_decay=1)
 else:
     model_g_optimizer = optim.RMSprop(model_g.parameters(), lr=opt.lr*0.1)
     model_d_optimizer = optim.RMSprop(model_d.parameters(), lr=opt.lr*0.1)

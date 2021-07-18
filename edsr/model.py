@@ -53,13 +53,13 @@ class EDSR(nn.Module):
                   nn.PixelShuffle(num_scale), ]
         return layers
 
-    def forward(self, x):
+    def forward(self, x, scale=0.1):
         out = self.sub_mean(x)
         del x
         out = self.conv1(out)
         out1 = out
         out = self.bn1(self.conv2(self.res1(out1)))
-        out = out + out1
+        out = out + out1 * scale
         del out1
         out = self.conv3(self.upscale(out))
         out = self.add_mean(out)
