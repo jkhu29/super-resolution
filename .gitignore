@@ -5,3 +5,4 @@ dataset_make/*.h5
 /srresnet/models/
 /edsr/models/
 /rcan/models/
+/nohup.out
