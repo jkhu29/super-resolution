@@ -13,7 +13,7 @@ from model import RCAN
 import config
 import dataset
 import utils
-from loss import L1_Charbonnier_loss
+from loss import L1_edge_W_loss
 
 
 opt = config.get_options()
@@ -41,7 +41,7 @@ torch.manual_seed(manual_seed)
 model = RCAN().to(device)
 
 # criterion init
-criterion = L1_Charbonnier_loss()
+criterion = L1_edge_W_loss(device)
 
 # dataset init, train file need .h5
 train_dataset = dataset.TrainDataset(opt.train_file)

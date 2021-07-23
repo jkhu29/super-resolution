@@ -85,20 +85,20 @@ class ResidualBlock(nn.Module):
 
 class SRResNet(nn.Module):
     """SRResNet with or without BN"""
-    def __init__(self, num_channels=3, num_scale=4, num_layers=16, within=True):
+    def __init__(self, num_channels=3, out_channels=64, num_scale=4, num_layers=16, within=True):
         super(SRResNet, self).__init__()
 
         self.within = within
 
-        self.conv1 = nn.Conv2d(num_channels, 64, kernel_size=9, stride=1, padding=4)
+        self.conv1 = nn.Conv2d(num_channels, out_channels, kernel_size=9, stride=1, padding=4)
         self.relu1 = nn.LeakyReLU(0.2)
 
         self.res1 = self.MakeLayer(ResidualBlock, num_layers)
 
-        self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
-        self.bn1 = nn.BatchNorm2d(64)
+        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1)
+        self.bn1 = nn.BatchNorm2d(out_channels)
 
-        self.upscale = nn.Sequential(*self.UpscaleBlock(64, 256, num_scale))
+        self.upscale = nn.Sequential(*self.UpscaleBlock(out_channels, out_channels * 2 ** 2, num_scale))
 
         self.conv3 = nn.Conv2d(16, num_channels, kernel_size=9, stride=1, padding=4)
 

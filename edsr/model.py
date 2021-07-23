@@ -21,7 +21,7 @@ class MeanShift(nn.Conv2d):
 class EDSR(nn.Module):
     """EDSR, modified from SRResNet"""
 
-    def __init__(self, num_channels=3, num_scale=4, num_layers=32, within=False):
+    def __init__(self, num_channels=3, out_channels=64, num_scale=4, num_layers=32, within=False):
         super(EDSR, self).__init__()
         rgb_mean = (0.4488, 0.4371, 0.4040)
 
@@ -29,16 +29,16 @@ class EDSR(nn.Module):
         self.sub_mean = MeanShift(rgb_mean, -1)
         self.add_mean = MeanShift(rgb_mean, 1)
 
-        self.conv1 = nn.Conv2d(num_channels, 256, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(num_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
 
         self.res1 = self.MakeLayer(ResidualBlock, num_layers)
 
-        self.conv2 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(256)
+        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(out_channels)
 
-        self.upscale = nn.Sequential(*self.UpscaleBlock(256, 256 * 4, int(num_scale / 2)))
+        self.upscale = nn.Sequential(*self.UpscaleBlock(out_channels, out_channels * 4, int(num_scale / 2)))
 
-        self.conv3 = nn.Conv2d(256, num_channels, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv3 = nn.Conv2d(out_channels, num_channels, kernel_size=3, stride=1, padding=1, bias=False)
 
     def MakeLayer(self, block, num_layers):
         layers = []
