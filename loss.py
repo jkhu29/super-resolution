@@ -1,6 +1,5 @@
 import torch
 import torch.nn.functional as F
-from torch.autograd import Variable
 
 
 class L1_Charbonnier_loss(torch.nn.Module):
@@ -100,37 +99,34 @@ def sinkhorn_img_loss(X, Y, device, epsilon=0.01, niter=100):
 class L1_W_loss(torch.nn.Module):
     """L1 W loss."""
 
-    def __init__(self, device):
+    def __init__(self):
         super(L1_W_loss, self).__init__()
-        self.device = device
 
     def forward(self, x, y):
-        loss = sinkhorn_img_loss(x, y, self.device)
+        loss = sinkhorn_img_loss(x, y, x.device)
         return loss.sum()
 
 
 class L2_W_loss(torch.nn.Module):
     """L2 W loss."""
 
-    def __init__(self, device):
+    def __init__(self):
         super(L2_W_loss, self).__init__()
-        self.device = device
 
     def forward(self, x, y):
-        loss = sinkhorn_img_normalized(x, y, self.device)
+        loss = sinkhorn_img_normalized(x, y, x.device)
         return loss.sum()
 
 
 class L1_Charbonnier_W_loss(torch.nn.Module):
     """L1 Charbonnier W loss."""
 
-    def __init__(self, device):
+    def __init__(self):
         super(L1_Charbonnier_W_loss, self).__init__()
         self.eps = 1e-6
-        self.device = device
 
     def forward(self, x, y):
-        diff = sinkhorn_img_loss(x, y, self.device)
+        diff = sinkhorn_img_loss(x, y, x.device)
         error = torch.sqrt(diff * diff + self.eps)
         loss = torch.sum(error)
         return loss
@@ -139,24 +135,22 @@ class L1_Charbonnier_W_loss(torch.nn.Module):
 class L2_Charbonnier_W_loss(torch.nn.Module):
     """L2 Charbonnier W loss."""
 
-    def __init__(self, device):
+    def __init__(self):
         super(L2_Charbonnier_W_loss, self).__init__()
-        self.device = device
         self.eps = 1e-6
 
     def forward(self, x, y):
-        diff = sinkhorn_img_normalized(x, y, self.device)
+        diff = sinkhorn_img_normalized(x, y, x.device)
         error = torch.sqrt(diff * diff + self.eps)
         loss = torch.sum(error)
         return loss
 
 
 class L1_edge_W_loss(torch.nn.Module):
-    """L1 W loss."""
+    """TODO: L1 W loss."""
 
-    def __init__(self, device):
+    def __init__(self):
         super(L1_edge_W_loss, self).__init__()
-        self.device = device
         kernel = [[[1, 1, 1],
                   [1, -8, 1],
                   [1, 1, 1]],
@@ -166,7 +160,7 @@ class L1_edge_W_loss(torch.nn.Module):
                   [[1, 1, 1],
                   [1, -8, 1],
                   [1, 1, 1]]]
-        self.kernel = torch.FloatTensor(kernel).unsqueeze(0).to(device)
+        self.kernel = torch.FloatTensor(kernel).unsqueeze(0)
         self.weight = torch.nn.Parameter(self.kernel, requires_grad=False)
 
     def forward(self, x, y, threshold=127):

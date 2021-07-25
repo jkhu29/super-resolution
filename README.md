@@ -26,6 +26,7 @@
 - [x] RCAN `./rcan/`  rethinking
 - [x] TTSR `./ttsr/`  
 - [ ] USRNet
+- [ ] RFDN
 
 ### loss
 

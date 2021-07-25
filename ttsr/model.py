@@ -79,7 +79,7 @@ class SearchTrans(nn.Module):
         S = R_lv3_star.view(R_lv3_star.size(0), 1, lrsr_lv3.size(2), lrsr_lv3.size(3))
 
         return S, T_lv3, T_lv2, T_lv1
-    
+
 
 # TODO: similar to MDSR
 class LTE(nn.Module):
@@ -121,10 +121,9 @@ class LTE(nn.Module):
 
 
 class TTSR(nn.Module):
-    def __init__(self, args):
+    def __init__(self):
         super(TTSR, self).__init__()
-        self.args = args
-        self.num_res_blocks = list(map(int, args.num_res_blocks.split('+')))
+        self.num_res_blocks = [8, 12, 12]
         self.MainNet = EDSR(out_channels=64, num_layers=16)
         self.LTE = LTE(requires_grad=True)
         self.LTE_copy = LTE(requires_grad=False)  # used in transferal perceptual loss
