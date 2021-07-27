@@ -16,6 +16,7 @@ import loss
 from srresnet.model import SRCNN, FSRCNN, SRResNet
 from edsr.model import EDSR, VDSR
 from rcan.model import RCAN
+from test_model.model import SRFNet
 
 
 model_dict = {
@@ -25,6 +26,7 @@ model_dict = {
     "edsr": EDSR(),
     "vdsr": VDSR(),
     "rcan": RCAN(),
+    "test": SRFNet(),
 }
 
 criterion_dict = {
