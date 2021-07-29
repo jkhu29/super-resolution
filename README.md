@@ -1,7 +1,5 @@
 # super-resolution
 
-> please run `sudo apt install graphviz` first if you open the --save_model_pdf
-
 ## non-deeplearning
 
 - [ ] SCSR
@@ -42,3 +40,16 @@
 - [ ] OpenVino
 - [ ] TVM
 - [ ] OpenPPL
+
+## Usage
+
+> please run `sudo apt install graphviz` first if you open the --save_model_pdf
+
+```
+python train.py \
+    --model_name ttsr \
+    --train_file ./dataset_make/train_data.h5 \
+    --valid_file ./dataset_make/valid_data.h5 \
+```
+
+or you can see more attrs in `config.py`

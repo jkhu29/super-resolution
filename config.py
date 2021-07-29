@@ -3,6 +3,7 @@ import argparse
 
 def get_options(parser=argparse.ArgumentParser()):
     parser.add_argument('--model_name', type=str, default="srresnet")
+    parser.add_argument('--discriminator_name', type=str, default="vgg19")
     parser.add_argument('--criterion_name', type=str, default="l1")
     parser.add_argument('--train_file', type=str, required=True)
     parser.add_argument('--valid_file', type=str, required=True)

@@ -1,6 +1,4 @@
-import random
-import torch
-from torch import nn
+import torch.nn as nn
 import cv2
 import numpy as np
 from skimage.metrics import structural_similarity as ssim
@@ -12,14 +10,15 @@ def weights_init(model):
         if isinstance(m, nn.Conv2d):
             nn.init.kaiming_normal_(m.weight)
         elif isinstance(m, nn.BatchNorm2d):
-            nn.init.constant_(m.weight, 1)
-            nn.init.constant_(m.bias, 0)
+            nn.init.constant_(m.weight, 0.1)
+            nn.init.constant_(m.bias, 0.)
         elif isinstance(m, nn.Linear):
-            nn.init.constant_(m.bias, 0)
+            nn.init.constant_(m.bias, 0.)
 
 
 def calc_ssim(img1, img2):
     """calculate SSIM"""
+    # TODO: convert to cuda
     img1 = img1.cpu()
     img2 = img2.cpu()
     img1 = img1.numpy().transpose(1, 2, 0)
@@ -41,6 +40,7 @@ def calc_ssim(img1, img2):
 
 def calc_pnsr(img1, img2):
     """calculate PNSR"""
+    # TODO: convert to cuda
     img1 = img1.cpu()
     img2 = img2.cpu()
     img1 = img1.numpy().transpose(1, 2, 0)
