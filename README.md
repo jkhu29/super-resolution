@@ -23,7 +23,7 @@
 - [ ] DBPN
 - [x] RCAN `./rcan/`  rethinking
 - [x] TTSR `./ttsr/`  
-- [ ] USRNet
+- [x] USRNet `./usrnet`
 - [ ] RFDN
 
 ### loss
