@@ -1,6 +1,6 @@
-import torch.nn as nn
 import cv2
 import numpy as np
+import torch.nn as nn
 from skimage.metrics import structural_similarity as ssim
 
 
@@ -8,7 +8,7 @@ def weights_init(model):
     """Official init from torch repo."""
     for m in model.modules():
         if isinstance(m, nn.Conv2d):
-            nn.init.kaiming_normal_(m.weight)
+            nn.init.kaiming_normal_(m.weight, 0.1)
         elif isinstance(m, nn.BatchNorm2d):
             nn.init.constant_(m.weight, 0.1)
             nn.init.constant_(m.bias, 0.)

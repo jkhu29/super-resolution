@@ -4,7 +4,7 @@ from torch import nn
 
 class SRCNN(nn.Module):
     """SRCNN"""
-    def __init__(self, num_channels=1):
+    def __init__(self, num_channels=3):
         super(SRCNN, self).__init__()
 
         self.conv1 = nn.Conv2d(num_channels, 64, kernel_size=9, padding=9 // 2)
@@ -21,7 +21,7 @@ class SRCNN(nn.Module):
 
 class FSRCNN(nn.Module):
     """FSRCNN"""
-    def __init__(self, num_channels=1, m=4):
+    def __init__(self, num_channels=3, m=4):
         super(FSRCNN, self).__init__()
 
         self.conv1 = nn.Sequential(
@@ -42,7 +42,7 @@ class FSRCNN(nn.Module):
 
 class BSRCNN(nn.Module):
     """SRCNN with BatchNorm/InstanceNorm"""
-    def __init__(self, num_channels=1, m=4):
+    def __init__(self, num_channels=3, m=4):
         super(BSRCNN, self).__init__()
 
         self.conv1 = nn.Sequential(

@@ -204,7 +204,7 @@ class MergeTail(nn.Module):
 class MainNet(nn.Module):
     def __init__(self, num_resblock, out_channels, res_scale):
         super(MainNet, self).__init__()
-        self.num_resblock = num_resblock
+        self.num_resblocks = num_resblock
         self.out_channels = out_channels
 
         self.SFE = SFE(self.num_resblocks[0], out_channels)
@@ -212,7 +212,7 @@ class MainNet(nn.Module):
         # stage11
         self.conv11_head = nn.Conv2d(out_channels * 5, out_channels, kernel_size=3, stride=1, padding=1, bias=True)
         self.RB11 = nn.ModuleList()
-        for i in range(self.num_resblock):
+        for _ in range(self.num_resblocks[0]):
             self.RB11.append(ResidualBlock(out_channels))
         self.conv11_tail = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=True)
 
@@ -221,14 +221,14 @@ class MainNet(nn.Module):
         self.ps12 = nn.PixelShuffle(2)
 
         # stage21, 22
-        # self.conv21_head = conv3x3(out_channels, out_channels)
+        self.conv21_head = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1)
         self.conv22_head = nn.Conv2d(out_channels * 3, out_channels, kernel_size=3, stride=1, padding=1, bias=True)
 
         self.ex12 = CSFI2(out_channels)
 
         self.RB21 = nn.ModuleList()
         self.RB22 = nn.ModuleList()
-        for i in range(self.num_res_block):
+        for _ in range(self.num_resblocks[1]):
             self.RB21.append(ResidualBlock(out_channels))
             self.RB22.append(ResidualBlock(out_channels))
 
@@ -240,8 +240,8 @@ class MainNet(nn.Module):
         self.ps23 = nn.PixelShuffle(2)
 
         # stage31, 32, 33
-        # self.conv31_head = conv3x3(out_channels, out_channels)
-        # self.conv32_head = conv3x3(out_channels, out_channels)
+        self.conv31_head = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1)
+        self.conv32_head = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1)
         self.conv33_head = nn.Conv2d(out_channels * 2, out_channels, kernel_size=3, stride=1, padding=1, bias=True)
 
         self.ex123 = CSFI3(out_channels)
@@ -249,7 +249,7 @@ class MainNet(nn.Module):
         self.RB31 = nn.ModuleList()
         self.RB32 = nn.ModuleList()
         self.RB33 = nn.ModuleList()
-        for i in range(self.num_res_block):
+        for _ in range(self.num_resblocks[2]):
             self.RB31.append(ResidualBlock(out_channels))
             self.RB32.append(ResidualBlock(out_channels))
             self.RB33.append(ResidualBlock(out_channels))
@@ -346,7 +346,7 @@ class TTSR(nn.Module):
     def __init__(self):
         super(TTSR, self).__init__()
         self.num_res_blocks = [8, 12, 12]
-        self.net = MainNet(num_resblock=9, out_channels=64, res_scale=0.1)
+        self.net = MainNet(num_resblock=self.num_res_blocks, out_channels=64, res_scale=0.1)
         self.lte = LTE(requires_grad=True)
         self.lte_copy = LTE(requires_grad=False)  # used in transferal perceptual loss
         self.trans = Trans()

@@ -22,24 +22,25 @@
 - [x] VDSR / EDSR / MDSR `./edsr/`
 - [ ] DBPN
 - [x] RCAN `./rcan/`  rethinking
-- [x] TTSR `./ttsr/`  
+- [x] TTSR `./ttsr/`  rethinking 
 - [x] USRNet `./usrnet`
 - [ ] RFDN
+- [x] ZSSR `./zssr`
+- [x] AcNet `./acnet`
 
 ### loss
 
 - [x] L1/L2 ls
 - [x] Perceptual loss `./srresnet/`
 - [x] Charbonnier loss `./loss.py`
-- [x] sinkhorn loss `./loss.py` o with L1 & Charbonnier
+- [x] sinkhorn loss `./loss.py`  with L1 & Charbonnier
 - [ ] sinkhorn loss in edges
 
-## develop
+## inference
 
 - [ ] TensorRT
-- [ ] OpenVino
 - [ ] TVM
-- [ ] OpenPPL
+- [ ] vitis-ai
 
 ## Usage
 
@@ -52,4 +53,4 @@ python train.py \
     --valid_file ./dataset_make/valid_data.h5 \
 ```
 
-or you can see more attrs in `config.py`
+or see more attrs in `config.py`

@@ -1,7 +1,7 @@
 import sys
 sys.path.append("..")
 
-from torch import nn
+import torch.nn as nn
 from edsr.model import MeanShift
 
 
