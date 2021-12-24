@@ -1,10 +1,9 @@
-import sys
-sys.path.append("..")
+import torch
+import torch.nn as nn
 
-from torch import nn
-
-from srresnet.model import ResidualBlock
+from plugin import make_layer
 from plugin.mean_shift import MeanShift
+from plugin.commom import ResidualBlock
 
 
 class EDSR(nn.Module):
@@ -20,7 +19,7 @@ class EDSR(nn.Module):
 
         self.conv1 = nn.Conv2d(num_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
 
-        self.res1 = self.MakeLayer(ResidualBlock, num_layers)
+        self.res1 = make_layer(ResidualBlock, num_layers)
 
         self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(out_channels)
@@ -28,12 +27,6 @@ class EDSR(nn.Module):
         self.upscale = nn.Sequential(*self.UpscaleBlock(out_channels, out_channels * 4, int(num_scale / 2)))
 
         self.conv3 = nn.Conv2d(out_channels, num_channels, kernel_size=3, stride=1, padding=1, bias=False)
-
-    def MakeLayer(self, block, num_layers):
-        layers = []
-        for _ in range(num_layers):
-            layers.append(block(channels=64, within=self.within))
-        return nn.Sequential(*layers)
 
     def UpscaleBlock(self, in_channels, out_channels, num_scale):
         layers = [nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
@@ -68,7 +61,7 @@ class VDSR(nn.Module):
         self.conv1 = nn.Conv2d(num_channels, 64, kernel_size=3, stride=1, padding=1, bias=False)
         self.relu1 = nn.PReLU()
 
-        self.res1 = self.MakeLayer(ResidualBlock, num_layers)
+        self.res1 = make_layer(ResidualBlock, num_layers)
 
         self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
@@ -76,12 +69,6 @@ class VDSR(nn.Module):
         self.upscale = nn.Sequential(*self.UpscaleBlock(64, 64 * 4, int(num_scale // 2)))
 
         self.conv3 = nn.Conv2d(64, num_channels, kernel_size=3, stride=1, padding=1, bias=False)
-
-    def MakeLayer(self, block, num_layers):
-        layers = []
-        for _ in range(num_layers):
-            layers.append(block(channels=64, within=self.within))
-        return nn.Sequential(*layers)
 
     def UpscaleBlock(self, in_channels, out_channels, num_scale):
         layers = [nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),

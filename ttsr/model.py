@@ -1,28 +1,18 @@
-import sys
-
-sys.path.append("..")
-
-from srresnet.model import ResidualBlock
-from edsr.model import EDSR, MeanShift
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 
-
-def _make_layer(block, num_layers, out_channels):
-    layers = []
-    for _ in range(num_layers):
-        layers.append(block(channels=out_channels, within=False))
-    return nn.Sequential(*layers)
+from plugin import make_layer
+from plugin.commom import ResidualBlock
+from plugin.mean_shift import MeanShift
 
 
 class SFE(nn.Module):
     def __init__(self, num_res_layers=8, out_channels=64):
         super(SFE, self).__init__()
         self.conv1 = nn.Conv2d(3, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
-        self.res1 = _make_layer(ResidualBlock, num_res_layers, out_channels)
+        self.res1 = make_layer(ResidualBlock, num_res_layers, out_channels)
         self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
 
     def forward(self, x):

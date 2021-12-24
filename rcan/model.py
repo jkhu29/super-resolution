@@ -1,24 +1,7 @@
-import sys
-sys.path.append("..")
-
+import torch
 import torch.nn as nn
-from edsr.model import MeanShift
-
-
-class ChannelAttention(nn.Module):
-    def __init__(self, num_features, reduction):
-        super(ChannelAttention, self).__init__()
-
-        self.avg_pool = nn.AdaptiveAvgPool2d(1)
-        self.conv = nn.Sequential(
-            nn.Conv2d(num_features, num_features // reduction, kernel_size=1, bias=True),
-            nn.ReLU(inplace=True),
-            nn.Conv2d(num_features // reduction, num_features, kernel_size=1, bias=True),
-            nn.Sigmoid()
-        )
-
-    def forward(self, x):
-        return x * self.conv(self.avg_pool(x))
+from plugin.mean_shift import MeanShift
+from plugin.attention_modules import ChannelAttention
 
 
 class RCAB(nn.Module):
@@ -62,7 +45,6 @@ class RCAN(nn.Module):
 
         self.upscale = nn.Sequential(*self.UpscaleBlock(num_features, num_features * (self.scale ** 2), self.scale))
         self.conv3 = nn.Conv2d(num_features, 3, kernel_size=3, padding=1)
-        # self.dropout = nn.Dropout()
 
     def UpscaleBlock(self, in_channels, out_channels, num_scale):
         layers = [nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1),

@@ -1,6 +1,9 @@
 import torch
 from torch import nn
 
+from plugin import make_layer
+from plugin.commom import ResidualBlock
+
 
 class SRCNN(nn.Module):
     """SRCNN"""
@@ -61,28 +64,6 @@ class BSRCNN(nn.Module):
         return self.conv3(self.conv2(self.conv1(x)))
 
 
-class ResidualBlock(nn.Module):
-    def __init__(self, channels=64, within=True):
-        super(ResidualBlock, self).__init__()
-
-        self.conv1 = nn.Conv2d(in_channels=channels, out_channels=channels, kernel_size=3, stride=1, padding=1, bias=False)
-        self.in1 = nn.InstanceNorm2d(channels, affine=True)
-        self.relu = nn.PReLU()
-        self.conv2 = nn.Conv2d(in_channels=channels, out_channels=channels, kernel_size=3, stride=1, padding=1, bias=False)
-        self.in2 = nn.InstanceNorm2d(channels, affine=True)
-
-        self.within = within
-
-    def forward(self, x):
-        if self.within:
-            output = self.relu(self.in1(self.conv1(x)))
-            output = self.in2(self.conv2(output))
-        else:
-            output = self.conv2(self.relu(self.conv1(x)))
-        output = output + x
-        return output 
-
-
 class SRResNet(nn.Module):
     """SRResNet with or without BN"""
     def __init__(self, num_channels=3, out_channels=64, num_scale=4, num_layers=16, within=True):
@@ -93,7 +74,7 @@ class SRResNet(nn.Module):
         self.conv1 = nn.Conv2d(num_channels, out_channels, kernel_size=9, stride=1, padding=4)
         self.relu1 = nn.LeakyReLU(0.2)
 
-        self.res1 = self.MakeLayer(ResidualBlock, num_layers)
+        self.res1 = make_layer(ResidualBlock, num_layers)
 
         self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1)
         self.bn1 = nn.BatchNorm2d(out_channels)
@@ -101,12 +82,6 @@ class SRResNet(nn.Module):
         self.upscale = nn.Sequential(*self.UpscaleBlock(out_channels, out_channels * 2 ** 2, num_scale))
 
         self.conv3 = nn.Conv2d(16, num_channels, kernel_size=9, stride=1, padding=4)
-
-    def MakeLayer(self, block, num_layers):
-        layers = []
-        for _ in range(num_layers):
-            layers.append(block(within=self.within))
-        return nn.Sequential(*layers)
 
     def UpscaleBlock(self, in_channels, out_channels, num_scale):
         layers = [nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),

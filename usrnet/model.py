@@ -4,9 +4,9 @@ import torch.nn as nn
 import sys
 sys.path.append("..")
 
-from edsr.model import MeanShift
-from srresnet.model import ResidualBlock
-from rcan.model import ChannelAttention, RCAB, RG
+from plugin.mean_shift import MeanShift
+from plugin.commom import ResidualBlock
+from plugin.attention_modules import ChannelAttention
 
 
 class ConcatBlock(nn.Module):

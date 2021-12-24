@@ -1,10 +1,6 @@
-import sys
-
-sys.path.append("..")
-
 import torch
 import torch.nn as nn
-from srresnet.model import SRResNet
+# from srresnet.model import SRResNet
 
 
 def pi(num=1000000000):
@@ -63,7 +59,7 @@ class FNetBlock(nn.Module):
         return x
 
 
-class SRFNet(SRResNet):
-    def __init__(self, num_channels=3, out_channels=64, num_scale=4, num_layers=16, within=True):
-        super(SRFNet, self).__init__()
-        self.bn1 = PreNorm(out_channels, FNetBlock())
+# class SRFNet(SRResNet):
+#     def __init__(self, num_channels=3, out_channels=64, num_scale=4, num_layers=16, within=True):
+#         super(SRFNet, self).__init__()
+#         self.bn1 = PreNorm(out_channels, FNetBlock())

@@ -3,7 +3,6 @@ from torchsummary import summary
 
 
 def summary_model(m):
-    print("\n")
     summary(m, (3, 64, 64))
 
 
@@ -43,6 +42,16 @@ def test_rfdn():
     from rfdn.model import RFDN
     model = RFDN().cuda()
     summary_model(model)
+
+
+def test_pan():
+    from pan.model import PAN
+    model = PAN().cuda()
+    summary_model(model)
+
+
+# def test_dbpn():
+#     from dbpn.model import DBPN
 
 
 if __name__ == "__main__":

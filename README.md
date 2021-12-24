@@ -1,5 +1,7 @@
 # super-resolution
 
+model zoos
+
 ## non-deeplearning
 
 - [ ] SCSR
@@ -18,15 +20,16 @@
 
 - [x] SRCNN / FSRCNN  `./srresnet/`
 - [x] SRResNet / SRGAN `./srresnet/`
-- [ ] SRDenseNet
 - [x] VDSR / EDSR / MDSR `./edsr/`
 - [ ] DBPN
-- [x] RCAN `./rcan/`  rethinking
-- [x] TTSR `./ttsr/`  rethinking 
-- [x] USRNet `./usrnet`
-- [ ] RFDN
+- [x] RCAN `./rcan/`
+- [x] TTSR `./ttsr/`      # NOTE(JiaKui Hu): rethinking
+- [x] USRNet `./usrnet`   # NOTE(JiaKui Hu): rethinking
+- [x] RFDN `./rfdn`
 - [x] ZSSR `./zssr`
 - [x] AcNet `./acnet`
+- [x] PAN `./pan`
+- [ ] EPSANet
 
 ### loss
 
@@ -43,6 +46,11 @@
 - [ ] vitis-ai
 
 ## Usage
+
+to make sure all the models could be run on your machine
+```
+pytest test.py
+```
 
 > please run `sudo apt install graphviz` first if you open the --save_model_pdf
 

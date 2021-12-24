@@ -1,12 +1,7 @@
 import torch
 import torch.nn as nn
 
-
-def _make_layer(block, num_layers):
-    layers = []
-    for _ in range(num_layers):
-        layers.append(block())
-    return nn.Sequential(*layers)
+from plugin import make_layer
 
 
 class ConvReLU(nn.Module):
@@ -16,7 +11,7 @@ class ConvReLU(nn.Module):
         self.withbn = withbn
         self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn = nn.InstanceNorm2d(out_channels)
-        self.relu = nn.CELU(inplace=True)
+        self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
         x = self.conv(x)
@@ -32,7 +27,7 @@ class ConvPixelShuffle(nn.Module):
         super(ConvPixelShuffle, self).__init__()
         self.conv = nn.Conv2d(in_channels, num_scale**2 * out_channels, kernel_size=3, stride=1, padding=1, bias=False)
         self.shuffle = nn.PixelShuffle(num_scale)
-        self.relu = nn.CELU(inplace=True)
+        self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
         x = self.conv(x)
@@ -76,7 +71,7 @@ class AcNet(nn.Module):
     ):
         super(AcNet, self).__init__()
         self.conv = ABBlock(in_channels=3)
-        self.ab1 = _make_layer(
+        self.ab1 = make_layer(
             ABBlock, num_layers=16,
         )
         self.relu = nn.CELU(inplace=True)
@@ -89,7 +84,7 @@ class AcNet(nn.Module):
 
         self.conv30 = ConvReLU()
         self.conv31 = ConvReLU()
-        self.conv32 = nn.Conv2d(in_channels, out_channels, 3, 1, 1, bias=False)
+        self.conv32 = nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
 
     def forward(self, x):
         x = self.conv(x)
